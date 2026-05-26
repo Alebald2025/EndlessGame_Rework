@@ -26,6 +26,16 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Gravedad personalizada aplicada al salto.")]
     [SerializeField] private float gravity = -25f;
 
+    [Header("Deslizamiento (Slide)")]
+    [Tooltip("Duración física del deslizamiento en segundos.")]
+    [SerializeField] private float slideDuration = 1.0f;
+    [Tooltip("Multiplicador de altura del CharacterController durante el deslizamiento.")]
+    [SerializeField] private float slideHeightMultiplier = 0.5f;
+
+    [Header("Animación")]
+    [Tooltip("Referencia al componente Animator del personaje.")]
+    [SerializeField] private Animator animator;
+
     private CharacterController controller;
     private int desiredLane = 1; // 0 = Izquierda, 1 = Centro, 2 = Derecha
     private float yVelocity = 0f;
@@ -33,11 +43,26 @@ public class PlayerController : MonoBehaviour
     private bool isControlEnabled = true;
     private float initialForwardSpeed;
 
+    private float originalHeight;
+    private Vector3 originalCenter;
+    private bool isSliding = false;
+    private Coroutine slideCoroutine;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         controller = GetComponent<CharacterController>();
         initialForwardSpeed = forwardSpeed;
+
+        // Guardar valores de colisión originales
+        originalHeight = controller.height;
+        originalCenter = controller.center;
+
+        // Buscar el Animator en los hijos si no está explícitamente asignado
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
     }
 
     private void Start()
@@ -48,6 +73,7 @@ public class PlayerController : MonoBehaviour
             InputManager.Instance.OnSwipeLeft += MoveLeft;
             InputManager.Instance.OnSwipeRight += MoveRight;
             InputManager.Instance.OnSwipeUp += Jump;
+            InputManager.Instance.OnSwipeDown += Slide;
         }
 
         // Suscribirse al evento de salto por sensor de movimiento
@@ -65,6 +91,7 @@ public class PlayerController : MonoBehaviour
             InputManager.Instance.OnSwipeLeft -= MoveLeft;
             InputManager.Instance.OnSwipeRight -= MoveRight;
             InputManager.Instance.OnSwipeUp -= Jump;
+            InputManager.Instance.OnSwipeDown -= Slide;
         }
 
         if (MotionJumpDetector.Instance != null)
@@ -83,8 +110,10 @@ public class PlayerController : MonoBehaviour
             forwardSpeed += speedIncreaseRate * Time.deltaTime;
         }
 
-        // Determinar si tocamos el suelo (usando Raycast como respaldo para mayor confiabilidad)
-        isGrounded = controller.isGrounded || Physics.Raycast(transform.position, Vector3.down, (controller.height / 2f) + 0.1f);
+        // Determinar si tocamos el suelo (usando Raycast seguro desde el centro del CharacterController)
+        Vector3 raycastStart = transform.TransformPoint(controller.center);
+        float raycastDistance = (controller.height / 2f) + 0.1f;
+        isGrounded = controller.isGrounded || Physics.Raycast(raycastStart, Vector3.down, raycastDistance);
 
         // Aplicar gravedad (sólo reseteamos a -0.1f si tocamos el suelo y no estamos saltando hacia arriba)
         if (isGrounded && yVelocity <= 0)
@@ -110,14 +139,88 @@ public class PlayerController : MonoBehaviour
 
         // Mover personaje con el CharacterController
         controller.Move(motion);
+
+        // Actualizar parámetros del Animator
+        if (animator != null)
+        {
+            animator.SetBool("isGrounded", isGrounded);
+            animator.SetFloat("speed", forwardSpeed);
+        }
     }
 
     public void Jump()
     {
         if (isGrounded && isControlEnabled && GameManager.Instance != null && GameManager.Instance.IsPlaying)
         {
+            // Cancelar el deslizamiento si estamos saltando
+            if (isSliding)
+            {
+                StopSlide();
+            }
+
             yVelocity = jumpForce;
+            
+            if (animator != null)
+            {
+                animator.SetTrigger("triggerJump");
+            }
+            
             Debug.Log("[Player] Saltando!");
+        }
+    }
+
+    public void Slide()
+    {
+        if (isGrounded && isControlEnabled && !isSliding && GameManager.Instance != null && GameManager.Instance.IsPlaying)
+        {
+            slideCoroutine = StartCoroutine(SlideCoroutine());
+        }
+    }
+
+    private IEnumerator SlideCoroutine()
+    {
+        isSliding = true;
+
+        if (animator != null)
+        {
+            animator.SetBool("isSliding", true);
+        }
+
+        // Reducir la altura y ajustar el centro del CharacterController para pasar por debajo de obstáculos
+        float targetHeight = originalHeight * slideHeightMultiplier;
+        controller.height = targetHeight;
+        controller.center = new Vector3(originalCenter.x, (originalCenter.y - originalHeight / 2f) + targetHeight / 2f, originalCenter.z);
+
+        yield return new WaitForSeconds(slideDuration);
+
+        // Restaurar altura y centro originales
+        controller.height = originalHeight;
+        controller.center = originalCenter;
+        
+        isSliding = false;
+
+        if (animator != null)
+        {
+            animator.SetBool("isSliding", false);
+        }
+    }
+
+    private void StopSlide()
+    {
+        if (!isSliding) return;
+
+        if (slideCoroutine != null)
+        {
+            StopCoroutine(slideCoroutine);
+        }
+
+        controller.height = originalHeight;
+        controller.center = originalCenter;
+        isSliding = false;
+
+        if (animator != null)
+        {
+            animator.SetBool("isSliding", false);
         }
     }
 
@@ -143,6 +246,7 @@ public class PlayerController : MonoBehaviour
     {
         isControlEnabled = false;
         forwardSpeed = 0f;
+        StopSlide();
     }
 
     public void EnableControls()
