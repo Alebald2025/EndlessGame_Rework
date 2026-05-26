@@ -1464,8 +1464,9 @@ MonoBehaviour:
   tilePrefabs:
   - {fileID: 6839976451686287759, guid: 5d951a052f97d1f4fae6e4c67009fc73, type: 3}
   - {fileID: 5744907110937977675, guid: 49d334d49a17f2445bb1ab29bb426e2f, type: 3}
-  - {fileID: 6517757315884193433, guid: 41ffa63cf3f96cc4ba12f7c15141a3bf, type: 3}
-  tileLength: 30
+  - {fileID: 4077797702292893513, guid: 6e8fc6652c34417469e57951464fa480, type: 3}
+  - {fileID: 2604251893779428767, guid: 8f3bfc51f84ee7b4dab51558d717e26f, type: 3}
+  tileLength: 39
   numberOfTiles: 5
   safeZone: 35
   playerTransform: {fileID: 872112039}

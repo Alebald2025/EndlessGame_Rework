@@ -2,7 +2,7 @@
 - Project name: EndlessGameReworkGit
 - Unity version: Unity 2022.3.45f1
 - Active game object:
-  - Name: Player
-  - Tag: Player
+  - Name: TrackSegment_2
+  - Tag: Untagged
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
