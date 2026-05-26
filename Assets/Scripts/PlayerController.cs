@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movimiento Adelante")]
     [Tooltip("Velocidad inicial de carrera.")]
-    public float forwardSpeed = 8f;
+    public float forwardSpeed = 5f;
     [Tooltip("Incremento de velocidad por segundo para aumentar dificultad.")]
     [SerializeField] private float speedIncreaseRate = 0.05f;
     [Tooltip("Velocidad máxima permitida.")]
@@ -31,11 +31,13 @@ public class PlayerController : MonoBehaviour
     private float yVelocity = 0f;
     private bool isGrounded;
     private bool isControlEnabled = true;
+    private float initialForwardSpeed;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         controller = GetComponent<CharacterController>();
+        initialForwardSpeed = forwardSpeed;
     }
 
     private void Start()
@@ -81,11 +83,11 @@ public class PlayerController : MonoBehaviour
             forwardSpeed += speedIncreaseRate * Time.deltaTime;
         }
 
-        // Determinar si tocamos el suelo
-        isGrounded = controller.isGrounded;
+        // Determinar si tocamos el suelo (usando Raycast como respaldo para mayor confiabilidad)
+        isGrounded = controller.isGrounded || Physics.Raycast(transform.position, Vector3.down, (controller.height / 2f) + 0.1f);
 
-        // Aplicar gravedad
-        if (isGrounded)
+        // Aplicar gravedad (sólo reseteamos a -0.1f si tocamos el suelo y no estamos saltando hacia arriba)
+        if (isGrounded && yVelocity <= 0)
         {
             yVelocity = -0.1f; // Pequeña fuerza hacia abajo para mantener el contacto con el suelo
         }
@@ -148,6 +150,7 @@ public class PlayerController : MonoBehaviour
         isControlEnabled = true;
         desiredLane = 1;
         yVelocity = 0f;
+        forwardSpeed = initialForwardSpeed;
     }
 
     // Detección de colisiones para monedas y obstáculos que no utilicen CharacterController.Move() directamente

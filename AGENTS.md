@@ -2,7 +2,7 @@
 - Project name: EndlessGameReworkGit
 - Unity version: Unity 2022.3.45f1
 - Active game object:
-  - Name: Canvas
-  - Tag: Untagged
-  - Layer: UI
+  - Name: Player
+  - Tag: Player
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

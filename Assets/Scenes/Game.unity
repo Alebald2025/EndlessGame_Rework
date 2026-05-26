@@ -800,11 +800,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laneDistance: 4
   laneSwitchSpeed: 15
-  forwardSpeed: 10
+  forwardSpeed: 5
   speedIncreaseRate: 0.1
   maxSpeed: 20
-  jumpForce: 10
-  gravity: -25
+  jumpForce: 13
+  gravity: -20
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

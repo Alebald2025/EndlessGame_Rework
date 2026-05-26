@@ -41,8 +41,8 @@ public class TrackManager : MonoBehaviour
             }
             else
             {
-                // Instanciar segmentos con obstáculos aleatorios
-                SpawnTile(Random.Range(0, tilePrefabs.Length));
+                // Instanciar segmentos con obstáculos aleatorios (excluyendo el tile de inicio vacío si hay otros disponibles)
+                SpawnTile(tilePrefabs.Length > 1 ? Random.Range(1, tilePrefabs.Length) : 0);
             }
         }
     }
@@ -54,8 +54,8 @@ public class TrackManager : MonoBehaviour
         // Comprobar si el jugador avanzó lo suficiente para generar una pista y eliminar la anterior
         if (playerTransform.position.z - safeZone > (spawnZ - numberOfTiles * tileLength))
         {
-            // Crear una nueva pista al azar (de todos los prefabs disponibles)
-            int randomPrefabIndex = Random.Range(0, tilePrefabs.Length);
+            // Crear una nueva pista al azar (excluyendo el tile de inicio vacío si hay otros disponibles)
+            int randomPrefabIndex = tilePrefabs.Length > 1 ? Random.Range(1, tilePrefabs.Length) : 0;
             SpawnTile(randomPrefabIndex);
             
             // Eliminar la pista que quedó más atrás
@@ -118,7 +118,7 @@ public class TrackManager : MonoBehaviour
             }
             else
             {
-                SpawnTile(Random.Range(0, tilePrefabs.Length));
+                SpawnTile(tilePrefabs.Length > 1 ? Random.Range(1, tilePrefabs.Length) : 0);
             }
         }
     }
