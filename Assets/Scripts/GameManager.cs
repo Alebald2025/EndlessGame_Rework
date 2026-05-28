@@ -1,8 +1,12 @@
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    private const string HighScoreFileName = "highscore.json";
+    private int savedHighScore = 0;
+
     public static GameManager Instance { get; private set; }
 
     [Header("Configuración del Sistema")]
@@ -42,8 +46,9 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Cargar el High Score guardado
-        HighScore = PlayerPrefs.GetInt("HighScore", 0);
+        // Cargar el High Score guardado desde JSON
+        savedHighScore = LoadHighScore();
+        HighScore = savedHighScore;
 
         // Encontrar al jugador
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -167,10 +172,10 @@ public class GameManager : MonoBehaviour
         IsGameOver = true;
 
         // Guardar High Score si se superó
-        if (HighScore > PlayerPrefs.GetInt("HighScore", 0))
+        if (HighScore > savedHighScore)
         {
-            PlayerPrefs.SetInt("HighScore", HighScore);
-            PlayerPrefs.Save();
+            savedHighScore = HighScore;
+            SaveHighScore(savedHighScore);
         }
 
         Debug.Log($"[GameManager] Fin de Juego. Puntuación Final: {CurrentScore}");
@@ -180,5 +185,46 @@ public class GameManager : MonoBehaviour
     {
         // Recargar la escena activa para resetear todo limpiamente
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    private int LoadHighScore()
+    {
+        string path = GetHighScoreFilePath();
+        if (!File.Exists(path))
+        {
+            return 0;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(path);
+            ScoreData data = JsonUtility.FromJson<ScoreData>(json);
+            return data != null ? data.highScore : 0;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[GameManager] No se pudo cargar el High Score desde JSON: {ex.Message}");
+            return 0;
+        }
+    }
+
+    private void SaveHighScore(int highScore)
+    {
+        ScoreData data = new ScoreData { highScore = highScore };
+        string json = JsonUtility.ToJson(data);
+        string path = GetHighScoreFilePath();
+        File.WriteAllText(path, json);
+        Debug.Log($"[GameManager] High Score guardado en JSON: {highScore} ({path})");
+    }
+
+    private string GetHighScoreFilePath()
+    {
+        return Path.Combine(Application.persistentDataPath, HighScoreFileName);
+    }
+
+    [System.Serializable]
+    private class ScoreData
+    {
+        public int highScore;
     }
 }

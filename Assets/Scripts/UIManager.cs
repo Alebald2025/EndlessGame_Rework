@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -36,8 +37,10 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        // Esperar un frame para asegurar que GameManager haya cargado el récord desde JSON.
+        yield return null;
         ShowStartScreen();
     }
 
@@ -101,7 +104,7 @@ public class UIManager : MonoBehaviour
         if (GameManager.Instance != null)
         {
             if (gameOverScoreText != null)
-                gameOverScoreText.text = "PUNTUACIÓN: " + GameManager.Instance.CurrentScore.ToString();
+                gameOverScoreText.text = "PUNTOS: " + GameManager.Instance.CurrentScore.ToString();
 
             if (gameOverHighScoreText != null)
                 gameOverHighScoreText.text = "RECORD ACTUAL: " + GameManager.Instance.HighScore.ToString();
