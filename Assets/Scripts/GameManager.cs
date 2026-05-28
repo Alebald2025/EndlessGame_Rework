@@ -9,6 +9,11 @@ public class GameManager : MonoBehaviour
     [Tooltip("¿Iniciar jugando automáticamente o esperar en pantalla de título?")]
     [SerializeField] private bool autoStart = false;
 
+    [Header("Transición de Cámara")]
+    [Tooltip("Si es TRUE, el jugador espera quieto (Idle) hasta que la cámara se coloque detrás.\n" +
+             "Si es FALSE, el jugador empieza a correr inmediatamente y la cámara le alcanza.")]
+    [SerializeField] private bool startRunAfterTransition = true;
+
     // Estado del Juego
     public bool IsPlaying { get; private set; }
     public bool IsGameOver { get; private set; }
@@ -21,6 +26,7 @@ public class GameManager : MonoBehaviour
     private float scoreAccumulator = 0f;
     private Vector3 playerStartPos;
     private PlayerController player;
+    private CameraFollow cameraFollow;
 
     private void Awake()
     {
@@ -38,7 +44,7 @@ public class GameManager : MonoBehaviour
     {
         // Cargar el High Score guardado
         HighScore = PlayerPrefs.GetInt("HighScore", 0);
-        
+
         // Encontrar al jugador
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -47,16 +53,20 @@ public class GameManager : MonoBehaviour
             playerStartPos = player.transform.position;
         }
 
+        // Encontrar la cámara con el script CameraFollow
+        cameraFollow = FindFirstObjectByType<CameraFollow>();
+
         if (autoStart)
         {
             StartGame();
         }
         else
         {
-            // Esperando en el menú de inicio
+            // Esperando en el menú de inicio: personaje quieto, cámara en posición frontal
             IsPlaying = false;
             IsGameOver = false;
             if (player != null) player.DisableControls();
+            // La cámara ya se posiciona en modo Menu en su propio Start()
         }
     }
 
@@ -66,7 +76,7 @@ public class GameManager : MonoBehaviour
         {
             // Calcular puntuación basada en la distancia recorrida en el eje Z
             float distanceRun = player.transform.position.z - playerStartPos.z;
-            
+
             // Sumar puntos por distancia recorrida
             CurrentScore = Mathf.Max(0, (int)distanceRun) + (CoinsCollected * 10);
 
@@ -78,27 +88,61 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Llamado por el UIManager al pulsar el botón "Play".
+    /// Gestiona la transición de cámara y el arranque del juego según la configuración.
+    /// </summary>
     public void StartGame()
     {
-        IsPlaying = true;
-        IsGameOver = false;
         CurrentScore = 0;
         CoinsCollected = 0;
-        
+        IsGameOver = false;
+
         if (player != null)
         {
             player.transform.position = playerStartPos;
-            player.EnableControls();
         }
 
         // Si tenemos un TrackManager en escena, reiniciarlo
         TrackManager trackM = FindFirstObjectByType<TrackManager>();
-        if (trackM != null)
-        {
-            trackM.ResetTrack();
-        }
+        if (trackM != null) trackM.ResetTrack();
 
-        Debug.Log("[GameManager] ¡Juego Iniciado!");
+        if (cameraFollow != null && !autoStart)
+        {
+            if (startRunAfterTransition)
+            {
+                // Modo Cinematográfico: el jugador espera quieto hasta que la cámara llega a su espalda
+                if (player != null) player.DisableControls();
+
+                cameraFollow.StartTransitionToGameplay(onComplete: () =>
+                {
+                    // La cámara llegó: ¡ahora sí a correr!
+                    IsPlaying = true;
+                    if (player != null) player.EnableControls();
+                    if (UIManager.Instance != null) UIManager.Instance.ShowHUD();
+                    Debug.Log("[GameManager] Transición completada. ¡Juego Iniciado!");
+                });
+            }
+            else
+            {
+                // Modo Acción Inmediata: el jugador sale corriendo y la cámara le sigue mientras transiciona
+                IsPlaying = true;
+                if (player != null) player.EnableControls();
+                if (UIManager.Instance != null) UIManager.Instance.ShowHUD();
+                cameraFollow.StartTransitionToGameplay(onComplete: () =>
+                {
+                    Debug.Log("[GameManager] Transición de cámara completada (modo acción inmediata).");
+                });
+            }
+        }
+        else
+        {
+            // Sin cámara o autoStart: arrancar directamente sin transición
+            IsPlaying = true;
+            if (player != null) player.EnableControls();
+            if (UIManager.Instance != null) UIManager.Instance.ShowHUD();
+            Debug.Log("[GameManager] ¡Juego Iniciado! (sin transición de cámara)");
+        }
     }
 
     public void CollectCoin(int value)
@@ -106,7 +150,7 @@ public class GameManager : MonoBehaviour
         if (IsGameOver) return;
         CoinsCollected++;
         CurrentScore += value;
-        
+
         if (CurrentScore > HighScore)
         {
             HighScore = CurrentScore;
@@ -118,7 +162,7 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         if (IsGameOver) return;
-        
+
         IsPlaying = false;
         IsGameOver = true;
 

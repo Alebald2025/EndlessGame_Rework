@@ -34,9 +34,9 @@ public class TrackManager : MonoBehaviour
         // Generar los segmentos iniciales
         for (int i = 0; i < numberOfTiles; i++)
         {
-            if (i < 2)
+            if (i < 1)
             {
-                // Instanciar los dos primeros segmentos vacíos para dar tiempo de reacción
+                // Instanciar el primer segmento vacío para dar tiempo de reacción
                 SpawnTile(0);
             }
             else
@@ -112,7 +112,7 @@ public class TrackManager : MonoBehaviour
         // Volver a spawnear las pistas iniciales
         for (int i = 0; i < numberOfTiles; i++)
         {
-            if (i < 2)
+            if (i < 1)
             {
                 SpawnTile(0);
             }

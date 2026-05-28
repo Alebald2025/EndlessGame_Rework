@@ -28,6 +28,20 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider calibThresholdSlider;
     [SerializeField] private TextMeshProUGUI calibThresholdValueText;
 
+    public static UIManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void Start()
     {
         // Configurar el slider de calibración si está asignado
@@ -92,12 +106,19 @@ public class UIManager : MonoBehaviour
     public void OnClickPlayButton()
     {
         startPanel.SetActive(false);
-        hudPanel.SetActive(true);
         gameOverPanel.SetActive(false);
 
         if (GameManager.Instance != null)
         {
             GameManager.Instance.StartGame();
+        }
+    }
+
+    public void ShowHUD()
+    {
+        if (hudPanel != null)
+        {
+            hudPanel.SetActive(true);
         }
     }
 
@@ -112,7 +133,7 @@ public class UIManager : MonoBehaviour
                 gameOverScoreText.text = "PUNTUACIÓN: " + GameManager.Instance.CurrentScore.ToString();
 
             if (gameOverHighScoreText != null)
-                gameOverHighScoreText.text = "RÉCORD ACTUAL: " + GameManager.Instance.HighScore.ToString();
+                gameOverHighScoreText.text = "RECORD ACTUAL: " + GameManager.Instance.HighScore.ToString();
         }
     }
 
