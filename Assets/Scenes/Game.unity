@@ -1424,6 +1424,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2e70f98020592141b479a660048fcae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loadingScreen: {fileID: 1505833459}
   startPanel: {fileID: 740449477}
   hudPanel: {fileID: 373147819}
   gameOverPanel: {fileID: 490930172}
