@@ -726,7 +726,7 @@ MonoBehaviour:
   laneSwitchSpeed: 15
   forwardSpeed: 5
   speedIncreaseRate: 0.1
-  maxSpeed: 20
+  maxSpeed: 40
   jumpForce: 13
   gravity: -20
   slideDuration: 1
@@ -1480,6 +1480,8 @@ MonoBehaviour:
   - {fileID: 5744907110937977675, guid: 49d334d49a17f2445bb1ab29bb426e2f, type: 3}
   - {fileID: 4077797702292893513, guid: 6e8fc6652c34417469e57951464fa480, type: 3}
   - {fileID: 2604251893779428767, guid: 8f3bfc51f84ee7b4dab51558d717e26f, type: 3}
+  - {fileID: 4077797702292893513, guid: 2316b56e70aa9ff41bbae619b22eca5c, type: 3}
+  - {fileID: 2604251893779428767, guid: cc97fdeaac8ae1a4db78895400ba440b, type: 3}
   tileLength: 39
   numberOfTiles: 5
   safeZone: 35
