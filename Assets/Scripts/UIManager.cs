@@ -8,7 +8,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject startPanel;
     [SerializeField] private GameObject hudPanel;
     [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private GameObject calibrationPanel;
 
     [Header("Textos del HUD")]
     [SerializeField] private TextMeshProUGUI hudScoreText;
@@ -21,12 +20,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI gameOverScoreText;
     [SerializeField] private TextMeshProUGUI gameOverHighScoreText;
 
-    [Header("Calibración del Sensor (Premium)")]
-    [SerializeField] private TextMeshProUGUI calibRawAccText;
-    [SerializeField] private TextMeshProUGUI calibJerkText;
-    [SerializeField] private TextMeshProUGUI calibMaxJerkText;
-    [SerializeField] private Slider calibThresholdSlider;
-    [SerializeField] private TextMeshProUGUI calibThresholdValueText;
+
 
     public static UIManager Instance { get; private set; }
 
@@ -44,16 +38,6 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        // Configurar el slider de calibración si está asignado
-        if (calibThresholdSlider != null && MotionJumpDetector.Instance != null)
-        {
-            calibThresholdSlider.minValue = 0.5f;
-            calibThresholdSlider.maxValue = 5.0f;
-            calibThresholdSlider.value = MotionJumpDetector.Instance.jumpThreshold;
-            calibThresholdSlider.onValueChanged.AddListener(OnThresholdSliderChanged);
-            UpdateThresholdText(calibThresholdSlider.value);
-        }
-
         ShowStartScreen();
     }
 
@@ -75,19 +59,7 @@ public class UIManager : MonoBehaviour
             ShowGameOverScreen();
         }
 
-        // Actualizar telemetría en el panel de calibración si está visible
-        if (calibrationPanel != null && calibrationPanel.activeSelf && MotionJumpDetector.Instance != null)
-        {
-            Vector3 rawAcc = MotionJumpDetector.Instance.currentRawAcceleration;
-            if (calibRawAccText != null)
-                calibRawAccText.text = $"Acc. Cruda (X,Y,Z): \n{rawAcc.x:F2}, {rawAcc.y:F2}, {rawAcc.z:F2}";
 
-            if (calibJerkText != null)
-                calibJerkText.text = $"Fuerza de sacudida actual: {MotionJumpDetector.Instance.currentJerkForce:F2}";
-
-            if (calibMaxJerkText != null)
-                calibMaxJerkText.text = $"Pico máximo registrado: {MotionJumpDetector.Instance.maxJerkForceRecorded:F2}";
-        }
     }
 
     public void ShowStartScreen()
@@ -95,7 +67,6 @@ public class UIManager : MonoBehaviour
         startPanel.SetActive(true);
         hudPanel.SetActive(false);
         gameOverPanel.SetActive(false);
-        if (calibrationPanel != null) calibrationPanel.SetActive(false);
 
         if (GameManager.Instance != null && menuHighScoreText != null)
         {
@@ -145,44 +116,10 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // Métodos para el panel de calibración
-    public void ToggleCalibrationPanel()
+    public void OnClickQuitButton()
     {
-        if (calibrationPanel != null)
-        {
-            bool isActive = !calibrationPanel.activeSelf;
-            calibrationPanel.SetActive(isActive);
-            
-            // Si lo abrimos, resetear el pico máximo anterior para calibración limpia
-            if (isActive && MotionJumpDetector.Instance != null)
-            {
-                MotionJumpDetector.Instance.ResetMaxJerkRecord();
-            }
-        }
+        Application.Quit();
     }
 
-    public void OnClickResetMaxJerk()
-    {
-        if (MotionJumpDetector.Instance != null)
-        {
-            MotionJumpDetector.Instance.ResetMaxJerkRecord();
-        }
-    }
 
-    private void OnThresholdSliderChanged(float value)
-    {
-        if (MotionJumpDetector.Instance != null)
-        {
-            MotionJumpDetector.Instance.jumpThreshold = value;
-            UpdateThresholdText(value);
-        }
-    }
-
-    private void UpdateThresholdText(float value)
-    {
-        if (calibThresholdValueText != null)
-        {
-            calibThresholdValueText.text = "Umbral: " + value.ToString("F2");
-        }
-    }
 }
