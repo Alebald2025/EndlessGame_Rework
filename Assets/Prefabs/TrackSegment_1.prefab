@@ -308,7 +308,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &8601080399794736277
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -430,7 +432,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &3657311735266017323
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -547,7 +551,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &8057868643754755613
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -817,7 +823,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0ca2bd9ab4e3014d9cdd536fdb8d90f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDestructible: 0
 --- !u!4 &1651686065343653804 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: a119eb0fa059db34bbaef286c1af1696, type: 3}
@@ -991,7 +996,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0ca2bd9ab4e3014d9cdd536fdb8d90f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDestructible: 0
 --- !u!4 &3204310126134438018 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 81835658bbd378143a0f525b8552f557, type: 3}
@@ -1153,7 +1157,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &8850309248848503457
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1354,7 +1360,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0ca2bd9ab4e3014d9cdd536fdb8d90f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDestructible: 0
 --- !u!1001 &4611282603655416667
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1461,7 +1466,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0ca2bd9ab4e3014d9cdd536fdb8d90f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDestructible: 0
 --- !u!4 &4611282603655811547 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 1af0a2c8773f85c40bdb120f32cd8a8a, type: 3}
@@ -1763,7 +1767,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0ca2bd9ab4e3014d9cdd536fdb8d90f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDestructible: 0
 --- !u!1001 &7214376410586583479
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1925,7 +1928,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &2563826467201440111
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2042,7 +2047,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &3628309096465735972
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2268,7 +2275,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0ca2bd9ab4e3014d9cdd536fdb8d90f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDestructible: 0
 --- !u!4 &9127799169560152652 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 05aec82adc02f16409639716322b1673, type: 3}

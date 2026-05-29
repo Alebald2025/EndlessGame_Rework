@@ -1180,7 +1180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laneDistance: 4
   laneSwitchSpeed: 15
-  forwardSpeed: 5
+  forwardSpeed: 15
   speedIncreaseRate: 0.1
   maxSpeed: 40
   jumpForce: 13
@@ -1201,18 +1201,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8e3f7baf6507254398d3ec7db6ac60f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableYSpike: 1
-  ySpikeThreshold: 0.7
-  enableGRise: 1
-  gRiseWindowSeconds: 0.5
-  gRiseThreshold: 0.8
+  jumpThreshold: 0.5
   jumpCooldown: 0.8
+  monitorYAxis: 1
+  monitorZAxis: 1
   verboseLogging: 1
-  currentDeltaY: 0
-  currentGMagnitude: 0
-  currentGRise: 0
-  maxDeltaYRecorded: 0
-  maxGRiseRecorded: 0
+  currentJerkForce: 0
+  maxJerkForceRecorded: 0
   currentRawAcceleration: {x: 0, y: 0, z: 0}
 --- !u!1001 &872978531
 PrefabInstance:
@@ -2428,7 +2423,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.7
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -2526,7 +2521,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menuMusic: {fileID: 8300000, guid: fa239574ad7f50a4eb7e96f3505b2548, type: 3}
   gameplayMusic: {fileID: 8300000, guid: 43589b5f6727c1340a998ba8d3477f4c, type: 3}
-  volume: 0.75
+  volume: 0.3
   crossfadeDuration: 1
 --- !u!1 &1940684731
 GameObject:

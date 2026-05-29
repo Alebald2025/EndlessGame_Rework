@@ -704,7 +704,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &3858275866945050706
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -984,7 +986,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &3129663908270066043
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1207,7 +1211,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &8149651017430017374
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1329,7 +1335,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &3837832689203858167
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1446,7 +1454,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &8466900419694882914
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1568,7 +1578,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &2071415431138982450
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1690,7 +1702,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &5129969189478200713
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1987,7 +2001,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 100
   scoreValue: 10
-  collectParticlePrefab: {fileID: 0}
+  collectParticlePrefab: {fileID: 8540107477274412653, guid: 1b71be7c37b46c04b80e07719d52bb35, type: 3}
+  coinSound: {fileID: 8300000, guid: 248292367f648fa4593d84d9f59b6709, type: 3}
+  coinSoundVolume: 1
 --- !u!64 &1798504410266645833
 MeshCollider:
   m_ObjectHideFlags: 0

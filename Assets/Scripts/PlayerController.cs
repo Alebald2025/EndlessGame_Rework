@@ -116,7 +116,8 @@ public class PlayerController : MonoBehaviour
         // Determinar si tocamos el suelo (usando Raycast seguro desde el centro del CharacterController)
         Vector3 raycastStart = transform.TransformPoint(controller.center);
         float raycastDistance = (controller.height / 2f) + 0.1f;
-        bool groundCheck = controller.isGrounded || Physics.Raycast(raycastStart, Vector3.down, raycastDistance);
+        // QueryTriggerInteraction.Ignore evita que triggers (como monedas) sean detectados como suelo sólido
+        bool groundCheck = controller.isGrounded || Physics.Raycast(raycastStart, Vector3.down, raycastDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
         
         // Si nos estamos moviendo hacia arriba (salto activo), forzamos isGrounded a falso para evitar que el Animator cancele el salto inmediatamente
         isGrounded = groundCheck && yVelocity <= 0;

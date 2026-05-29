@@ -11,7 +11,7 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private AudioClip gameplayMusic;
 
     [Header("Configuración de reproducción")]
-    [SerializeField] [Range(0f, 1f)] private float volume = 0.75f;
+    [SerializeField] [Range(0f, 1f)] private float volume = 0.60f;
     [SerializeField] private float crossfadeDuration = 1f;
 
     private AudioSource audioSource;
