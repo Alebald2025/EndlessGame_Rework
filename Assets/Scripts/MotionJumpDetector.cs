@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using System;
 
 public class MotionJumpDetector : MonoBehaviour
@@ -29,6 +30,7 @@ public class MotionJumpDetector : MonoBehaviour
 
     private Vector3 lastAcceleration;
     private float lastJumpTime;
+    private bool hasAccelerometer;
 
     private void Awake()
     {
@@ -44,37 +46,45 @@ public class MotionJumpDetector : MonoBehaviour
 
     private void Start()
     {
-        lastAcceleration = Input.acceleration;
+        var accelerometer = Accelerometer.current;
+        hasAccelerometer = accelerometer != null;
+
+        if (hasAccelerometer)
+        {
+            lastAcceleration = accelerometer.acceleration.ReadValue();
+        }
+        else
+        {
+            lastAcceleration = Vector3.zero;
+            Debug.LogWarning("[MotionJumpDetector] Acelerómetro no disponible en este dispositivo.");
+        }
+
         lastJumpTime = -jumpCooldown;
     }
 
     private void Update()
     {
-        currentRawAcceleration = Input.acceleration;
+        if (!hasAccelerometer)
+            return;
 
-        // Calcular el cambio de aceleración (Jerk / Tirón)
-        // Delta de aceleración entre este frame y el anterior
+        var accelerometer = Accelerometer.current;
+        if (accelerometer == null)
+            return;
+
+        currentRawAcceleration = accelerometer.acceleration.ReadValue();
+
         Vector3 accelDelta = currentRawAcceleration - lastAcceleration;
-
-        // Medir la fuerza del tirón en las direcciones deseadas
         float forceY = monitorYAxis ? Mathf.Max(0, accelDelta.y) : 0f;
-        // El movimiento hacia adelante/arriba suele registrarse en el eje Z positivo o negativo según inclinación.
-        // Al sacudir hacia arriba inclinando la pantalla hacia uno, el eje Z suele experimentar un cambio rápido positivo.
         float forceZ = monitorZAxis ? Mathf.Abs(accelDelta.z) : 0f;
 
-        // Tomamos el valor de fuerza más alto detectado en los ejes configurados
-        // Lo dividimos por Time.deltaTime para obtener la tasa de cambio real (independiente de FPS)
-        // O bien usamos el delta absoluto escalado. Dividir por deltaTime da valores más grandes pero estables ante fluctuaciones de fotogramas.
         float dt = Time.deltaTime > 0 ? Time.deltaTime : 0.02f;
         currentJerkForce = Mathf.Max(forceY, forceZ) / dt;
 
-        // Registrar el pico máximo para calibración
         if (currentJerkForce > maxJerkForceRecorded)
         {
             maxJerkForceRecorded = currentJerkForce;
         }
 
-        // Comprobar si supera el umbral y ha pasado el cooldown
         if (currentJerkForce >= jumpThreshold && (Time.time - lastJumpTime) >= jumpCooldown)
         {
             TriggerJump();

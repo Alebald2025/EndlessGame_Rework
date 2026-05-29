@@ -125,6 +125,7 @@ public class GameManager : MonoBehaviour
                     IsPlaying = true;
                     if (player != null) player.EnableControls();
                     if (UIManager.Instance != null) UIManager.Instance.ShowHUD();
+                    MusicManager.Instance?.PlayGameplayMusic();
                     Debug.Log("[GameManager] Transición completada. ¡Juego Iniciado!");
                 });
             }
@@ -136,6 +137,7 @@ public class GameManager : MonoBehaviour
                 if (UIManager.Instance != null) UIManager.Instance.ShowHUD();
                 cameraFollow.StartTransitionToGameplay(onComplete: () =>
                 {
+                    MusicManager.Instance?.PlayGameplayMusic();
                     Debug.Log("[GameManager] Transición de cámara completada (modo acción inmediata).");
                 });
             }
@@ -146,6 +148,7 @@ public class GameManager : MonoBehaviour
             IsPlaying = true;
             if (player != null) player.EnableControls();
             if (UIManager.Instance != null) UIManager.Instance.ShowHUD();
+            MusicManager.Instance?.PlayGameplayMusic();
             Debug.Log("[GameManager] ¡Juego Iniciado! (sin transición de cámara)");
         }
     }

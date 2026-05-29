@@ -1,5 +1,6 @@
-using UnityEngine;
 using System;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class InputManager : MonoBehaviour
 {
@@ -21,7 +22,6 @@ public class InputManager : MonoBehaviour
 
     private void Awake()
     {
-        // Implementación de Singleton simple
         if (Instance == null)
         {
             Instance = this;
@@ -34,86 +34,102 @@ public class InputManager : MonoBehaviour
 
     private void Update()
     {
-        HandleKeyboardInput();
+        HandleKeyboardAndGamepadInput();
         HandleTouchInput();
     }
 
-    private void HandleKeyboardInput()
+    private void HandleKeyboardAndGamepadInput()
     {
-        // Teclas para cambiar a la izquierda (Flecha izquierda o 'A')
-        if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard != null)
         {
-            OnSwipeLeft?.Invoke();
+            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame)
+            {
+                OnSwipeLeft?.Invoke();
+            }
+
+            if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame)
+            {
+                OnSwipeRight?.Invoke();
+            }
+
+            if (keyboard.upArrowKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame)
+            {
+                OnSwipeUp?.Invoke();
+            }
+
+            if (keyboard.downArrowKey.wasPressedThisFrame || keyboard.sKey.wasPressedThisFrame)
+            {
+                OnSwipeDown?.Invoke();
+            }
         }
-        // Teclas para cambiar a la derecha (Flecha derecha o 'D')
-        if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+
+        Gamepad gamepad = Gamepad.current;
+        if (gamepad != null)
         {
-            OnSwipeRight?.Invoke();
-        }
-        // Teclas para saltar (Flecha arriba, 'W' o Espacio) - Respaldo del Editor
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space))
-        {
-            OnSwipeUp?.Invoke();
-        }
-        // Teclas para deslizarse/agacharse (Flecha abajo o 'S')
-        if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
-        {
-            OnSwipeDown?.Invoke();
+            if (gamepad.dpad.left.wasPressedThisFrame || gamepad.leftShoulder.wasPressedThisFrame)
+            {
+                OnSwipeLeft?.Invoke();
+            }
+
+            if (gamepad.dpad.right.wasPressedThisFrame || gamepad.rightShoulder.wasPressedThisFrame)
+            {
+                OnSwipeRight?.Invoke();
+            }
+
+            if (gamepad.buttonSouth.wasPressedThisFrame)
+            {
+                OnSwipeUp?.Invoke();
+            }
+
+            if (gamepad.buttonEast.wasPressedThisFrame)
+            {
+                OnSwipeDown?.Invoke();
+            }
         }
     }
 
     private void HandleTouchInput()
     {
-        if (Input.touchCount > 0)
+        Touchscreen touchscreen = Touchscreen.current;
+        if (touchscreen == null)
+            return;
+
+        var touch = touchscreen.primaryTouch;
+
+        if (touch.press.wasPressedThisFrame)
         {
-            Touch touch = Input.GetTouch(0);
+            touchStartPos = touch.position.ReadValue();
+            isTrackingSwipe = true;
+            return;
+        }
 
-            switch (touch.phase)
+        if (touch.press.isPressed && isTrackingSwipe)
+        {
+            Vector2 currentSwipe = touch.position.ReadValue() - touchStartPos;
+            if (currentSwipe.magnitude >= minSwipeDistance && touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved)
             {
-                case TouchPhase.Began:
-                    touchStartPos = touch.position;
-                    isTrackingSwipe = true;
-                    break;
-
-                case TouchPhase.Moved:
-                    // Verificación opcional a mitad del gesto
-                    if (isTrackingSwipe)
-                    {
-                        Vector2 currentSwipe = touch.position - touchStartPos;
-                        if (currentSwipe.magnitude >= minSwipeDistance)
-                        {
-                            DetectSwipeDirection(currentSwipe);
-                            isTrackingSwipe = false; // Detener rastreo para evitar múltiples detecciones en un solo movimiento
-                        }
-                    }
-                    break;
-
-                case TouchPhase.Ended:
-                    if (isTrackingSwipe)
-                    {
-                        touchEndPos = touch.position;
-                        Vector2 finalSwipe = touchEndPos - touchStartPos;
-                        if (finalSwipe.magnitude >= minSwipeDistance)
-                        {
-                            DetectSwipeDirection(finalSwipe);
-                        }
-                        isTrackingSwipe = false;
-                    }
-                    break;
-
-                case TouchPhase.Canceled:
-                    isTrackingSwipe = false;
-                    break;
+                DetectSwipeDirection(currentSwipe);
+                isTrackingSwipe = false;
             }
+        }
+
+        if (touch.press.wasReleasedThisFrame && isTrackingSwipe)
+        {
+            touchEndPos = touch.position.ReadValue();
+            Vector2 finalSwipe = touchEndPos - touchStartPos;
+            if (finalSwipe.magnitude >= minSwipeDistance)
+            {
+                DetectSwipeDirection(finalSwipe);
+            }
+            isTrackingSwipe = false;
         }
     }
 
     private void DetectSwipeDirection(Vector2 swipeVector)
     {
-        // Normalizar y ver qué eje tiene mayor magnitud (Horizontal vs Vertical)
         if (Mathf.Abs(swipeVector.x) > Mathf.Abs(swipeVector.y))
         {
-            // Deslizamiento Horizontal
             if (swipeVector.x > 0)
             {
                 OnSwipeRight?.Invoke();
@@ -125,7 +141,6 @@ public class InputManager : MonoBehaviour
         }
         else
         {
-            // Deslizamiento Vertical
             if (swipeVector.y > 0)
             {
                 OnSwipeUp?.Invoke();

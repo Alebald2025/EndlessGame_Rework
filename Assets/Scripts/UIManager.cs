@@ -89,6 +89,8 @@ public class UIManager : MonoBehaviour
         {
             menuHighScoreText.text = "RECORD: " + GameManager.Instance.HighScore.ToString();
         }
+
+        MusicManager.Instance?.PlayMenuMusic();
     }
 
     public void OnClickPlayButton()
