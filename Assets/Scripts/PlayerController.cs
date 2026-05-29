@@ -7,40 +7,29 @@ public class PlayerController : MonoBehaviour
     public static PlayerController Instance { get; private set; }
 
     [Header("Movimiento Lateral")]
-    [Tooltip("Distancia entre los carriles (Izquierda - Centro - Derecha).")]
     [SerializeField] private float laneDistance = 2.5f;
-    [Tooltip("Velocidad de transición al cambiar de carril.")]
     [SerializeField] private float laneSwitchSpeed = 15f;
 
     [Header("Movimiento Adelante")]
-    [Tooltip("Velocidad inicial de carrera.")]
     public float forwardSpeed = 5f;
-    [Tooltip("Incremento de velocidad por segundo para aumentar dificultad.")]
     [SerializeField] private float speedIncreaseRate = 0.05f;
-    [Tooltip("Velocidad máxima permitida.")]
     [SerializeField] private float maxSpeed = 20f;
 
     [Header("Salto")]
-    [Tooltip("Fuerza inicial del salto vertical.")]
     [SerializeField] private float jumpForce = 10f;
-    [Tooltip("Gravedad personalizada aplicada al salto.")]
     [SerializeField] private float gravity = -25f;
 
     [Header("Deslizamiento (Slide)")]
-    [Tooltip("Duración física del deslizamiento en segundos.")]
     [SerializeField] private float slideDuration = 1.0f;
-    [Tooltip("Multiplicador de altura del CharacterController durante el deslizamiento.")]
+    [SerializeField] private float airSlideDuration = 0.6f; // Más corto en el aire
     [SerializeField] private float slideHeightMultiplier = 0.5f;
 
     [Header("Animación")]
-    [Tooltip("Referencia al componente Animator del personaje.")]
     [SerializeField] private Animator animator;
-
-    [Tooltip("Trigger que activa la animación de choque contra obstáculo.")]
     [SerializeField] private string hitObstacleTrigger = "HitObstacle";
 
     private CharacterController controller;
-    private int desiredLane = 1; // 0 = Izquierda, 1 = Centro, 2 = Derecha
+    private int desiredLane = 1;
     private float yVelocity = 0f;
     private bool isGrounded;
     private bool isControlEnabled = true;
@@ -57,20 +46,15 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         initialForwardSpeed = forwardSpeed;
 
-        // Guardar valores de colisión originales
         originalHeight = controller.height;
         originalCenter = controller.center;
 
-        // Buscar el Animator en los hijos si no está explícitamente asignado
         if (animator == null)
-        {
             animator = GetComponentInChildren<Animator>();
-        }
     }
 
     private void Start()
     {
-        // Suscribirse a los eventos de entrada de deslizamiento normal
         if (InputManager.Instance != null)
         {
             InputManager.Instance.OnSwipeLeft += MoveLeft;
@@ -79,16 +63,12 @@ public class PlayerController : MonoBehaviour
             InputManager.Instance.OnSwipeDown += Slide;
         }
 
-        // Suscribirse al evento de salto por sensor de movimiento
         if (MotionJumpDetector.Instance != null)
-        {
             MotionJumpDetector.Instance.OnMotionJump += Jump;
-        }
     }
 
     private void OnDestroy()
     {
-        // Desuscribirse para evitar fugas de memoria
         if (InputManager.Instance != null)
         {
             InputManager.Instance.OnSwipeLeft -= MoveLeft;
@@ -98,56 +78,36 @@ public class PlayerController : MonoBehaviour
         }
 
         if (MotionJumpDetector.Instance != null)
-        {
             MotionJumpDetector.Instance.OnMotionJump -= Jump;
-        }
     }
 
     private void Update()
     {
         if (!isControlEnabled) return;
 
-        // Incrementar la velocidad del juego progresivamente
-        if (forwardSpeed < maxSpeed && GameManager.Instance != null && GameManager.Instance.IsPlaying)
-        {
+        if (forwardSpeed < maxSpeed && GameManager.Instance?.IsPlaying == true)
             forwardSpeed += speedIncreaseRate * Time.deltaTime;
-        }
 
-        // Determinar si tocamos el suelo (usando Raycast seguro desde el centro del CharacterController)
+        // Ground check
         Vector3 raycastStart = transform.TransformPoint(controller.center);
         float raycastDistance = (controller.height / 2f) + 0.1f;
-        // QueryTriggerInteraction.Ignore evita que triggers (como monedas) sean detectados como suelo sólido
         bool groundCheck = controller.isGrounded || Physics.Raycast(raycastStart, Vector3.down, raycastDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-        
-        // Si nos estamos moviendo hacia arriba (salto activo), forzamos isGrounded a falso para evitar que el Animator cancele el salto inmediatamente
+
         isGrounded = groundCheck && yVelocity <= 0;
 
-        // Aplicar gravedad (sólo reseteamos a -0.1f si tocamos el suelo y no estamos saltando hacia arriba)
         if (isGrounded && yVelocity <= 0)
-        {
-            yVelocity = -0.1f; // Pequeña fuerza hacia abajo para mantener el contacto con el suelo
-        }
+            yVelocity = -0.1f;
         else
-        {
             yVelocity += gravity * Time.deltaTime;
-        }
 
-        // Calcular posición objetivo en X basado en el carril deseado
+        // Movimiento lateral
         float targetX = (desiredLane - 1) * laneDistance;
-
-        // Interpolar en el eje X para suavizar el cambio de carril
         float nextX = Mathf.MoveTowards(transform.position.x, targetX, laneSwitchSpeed * Time.deltaTime);
         float deltaX = nextX - transform.position.x;
 
-        // Construir vector de movimiento
-        // El movimiento en Z es continuo
-        // El movimiento en Y es afectado por la velocidad vertical (salto/gravedad)
         Vector3 motion = new Vector3(deltaX, yVelocity * Time.deltaTime, forwardSpeed * Time.deltaTime);
-
-        // Mover personaje con el CharacterController
         controller.Move(motion);
 
-        // Actualizar parámetros del Animator
         if (animator != null)
         {
             animator.SetBool("isGrounded", isGrounded);
@@ -157,96 +117,93 @@ public class PlayerController : MonoBehaviour
 
     public void Jump()
     {
-        if (isGrounded && isControlEnabled && GameManager.Instance != null && GameManager.Instance.IsPlaying)
+        if (isGrounded && isControlEnabled && GameManager.Instance?.IsPlaying == true)
         {
-            // Cancelar el deslizamiento si estamos saltando
-            if (isSliding)
-            {
-                StopSlide();
-            }
+            if (isSliding) StopSlide();
 
             yVelocity = jumpForce;
-            
+
             if (animator != null)
-            {
                 animator.SetTrigger("triggerJump");
-            }
-            
+
             Debug.Log("[Player] Saltando!");
         }
     }
 
     public void Slide()
     {
-        if (isGrounded && isControlEnabled && !isSliding && GameManager.Instance != null && GameManager.Instance.IsPlaying)
+        if (!isControlEnabled || GameManager.Instance?.IsPlaying != true) return;
+
+        // === SLIDE EN EL SUELO ===
+        if (isGrounded && !isSliding)
         {
-            slideCoroutine = StartCoroutine(SlideCoroutine());
+            slideCoroutine = StartCoroutine(SlideCoroutine(false));
+        }
+        // === CANCELAR SALTO Y HACER DIVE ===
+        else if (!isGrounded && !isSliding)
+        {
+            // Cancelar impulso hacia arriba
+            if (yVelocity > 0)
+                yVelocity = -jumpForce * 0.6f; // Baja más rápido
+
+            slideCoroutine = StartCoroutine(SlideCoroutine(true));
+            Debug.Log("[Player] Salto cancelado → Dive/Slide en el aire");
         }
     }
 
-    private IEnumerator SlideCoroutine()
+    private IEnumerator SlideCoroutine(bool isAirSlide)
     {
         isSliding = true;
 
         if (animator != null)
-        {
             animator.SetBool("isSliding", true);
+
+        float duration = isAirSlide ? airSlideDuration : slideDuration;
+
+        if (!isAirSlide)
+        {
+            // Slide normal en suelo
+            float targetHeight = originalHeight * slideHeightMultiplier;
+            controller.height = targetHeight;
+            controller.center = new Vector3(originalCenter.x, (originalCenter.y - originalHeight / 2f) + targetHeight / 2f, originalCenter.z);
         }
 
-        // Reducir la altura y ajustar el centro del CharacterController para pasar por debajo de obstáculos
-        float targetHeight = originalHeight * slideHeightMultiplier;
-        controller.height = targetHeight;
-        controller.center = new Vector3(originalCenter.x, (originalCenter.y - originalHeight / 2f) + targetHeight / 2f, originalCenter.z);
+        yield return new WaitForSeconds(duration);
 
-        yield return new WaitForSeconds(slideDuration);
+        RestoreFromSlide();
+    }
 
-        // Restaurar altura y centro originales
+    private void RestoreFromSlide()
+    {
+        if (!isSliding) return;
+
         controller.height = originalHeight;
         controller.center = originalCenter;
-        
         isSliding = false;
 
         if (animator != null)
-        {
             animator.SetBool("isSliding", false);
-        }
     }
 
     private void StopSlide()
     {
-        if (!isSliding) return;
-
         if (slideCoroutine != null)
-        {
             StopCoroutine(slideCoroutine);
-        }
 
-        controller.height = originalHeight;
-        controller.center = originalCenter;
-        isSliding = false;
-
-        if (animator != null)
-        {
-            animator.SetBool("isSliding", false);
-        }
+        RestoreFromSlide();
     }
 
+    // Resto de métodos sin cambios (MoveLeft, MoveRight, DisableControls, etc.)
     private void MoveLeft()
     {
         if (!isControlEnabled) return;
-        if (desiredLane > 0)
-        {
-            desiredLane--;
-        }
+        if (desiredLane > 0) desiredLane--;
     }
 
     private void MoveRight()
     {
         if (!isControlEnabled) return;
-        if (desiredLane < 2)
-        {
-            desiredLane++;
-        }
+        if (desiredLane < 2) desiredLane++;
     }
 
     public void DisableControls()
@@ -264,40 +221,24 @@ public class PlayerController : MonoBehaviour
         forwardSpeed = initialForwardSpeed;
     }
 
-    // Detección de colisiones para monedas y obstáculos que no utilicen CharacterController.Move() directamente
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Obstacle"))
-        {
-            HitObstacle();
-        }
+        if (other.CompareTag("Obstacle")) HitObstacle();
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // Alternativa para detectar colisiones físicas con obstáculos etiquetados
-        if (hit.gameObject.CompareTag("Obstacle"))
-        {
-            HitObstacle();
-        }
+        if (hit.gameObject.CompareTag("Obstacle")) HitObstacle();
     }
 
     private void HitObstacle()
     {
         if (!isControlEnabled) return;
-        
-        Debug.Log("[Player] Chocó con un obstáculo!");
 
         if (animator != null)
-        {
             animator.SetTrigger(hitObstacleTrigger);
-        }
 
         DisableControls();
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.GameOver();
-        }
+        GameManager.Instance?.GameOver();
     }
 }
