@@ -74,7 +74,7 @@ public class MotionJumpDetector : MonoBehaviour
         currentRawAcceleration = accelerometer.acceleration.ReadValue();
 
         Vector3 accelDelta = currentRawAcceleration - lastAcceleration;
-        float forceY = monitorYAxis ? Mathf.Max(0, accelDelta.y) : 0f;
+        float forceY = monitorYAxis ? Mathf.Abs(accelDelta.y) : 0f;
         float forceZ = monitorZAxis ? Mathf.Abs(accelDelta.z) : 0f;
 
         float dt = Time.deltaTime > 0 ? Time.deltaTime : 0.02f;

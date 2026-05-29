@@ -5,6 +5,8 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
+    private static bool hasShownLoadingScreen;
+
     [Header("Paneles de la Interfaz")]
     [SerializeField] private GameObject loadingScreen;
     [SerializeField] private GameObject startPanel;
@@ -40,8 +42,8 @@ public class UIManager : MonoBehaviour
 
     private IEnumerator Start()
     {
-        // Mostrar pantalla de carga al inicio y esperar unos segundos antes de mostrar el menú.
-        if (loadingScreen != null)
+        // Mostrar la pantalla de carga solo en el primer inicio del juego.
+        if (!hasShownLoadingScreen && loadingScreen != null)
         {
             loadingScreen.SetActive(true);
             startPanel.SetActive(false);
@@ -51,6 +53,14 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSeconds(3.5f);
 
             loadingScreen.SetActive(false);
+            hasShownLoadingScreen = true;
+        }
+        else
+        {
+            if (loadingScreen != null)
+            {
+                loadingScreen.SetActive(false);
+            }
         }
 
         // Esperar un frame para asegurar que GameManager haya cargado el récord desde JSON.
