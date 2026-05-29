@@ -1,7 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
+using System.Collections;
 
+/// <summary>
+/// Detecta un gesto brusco del acelerómetro para saltar.
+/// Requiere "Active Input Handling" = "Input System Package (New)" en Player Settings.
+/// </summary>
 public class MotionJumpDetector : MonoBehaviour
 {
     public static MotionJumpDetector Instance { get; private set; }
@@ -9,28 +14,32 @@ public class MotionJumpDetector : MonoBehaviour
     public event Action OnMotionJump;
 
     [Header("Configuración del Sensor")]
-    [Tooltip("Umbral de fuerza del tirón (jerk) necesario para saltar. Valores típicos entre 1.5 y 3.5.")]
-    [Range(0.5f, 5.0f)]
-    public float jumpThreshold = 2.0f;
+    [Tooltip("Umbral de cambio brusco de aceleración (en g) para saltar. Típico: 0.4–1.0.")]
+    [Range(0.1f, 3.0f)]
+    public float jumpThreshold = 0.5f;
 
-    [Tooltip("Tiempo de espera mínimo (cooldown) entre saltos detectados por movimiento en segundos.")]
+    [Tooltip("Cooldown en segundos entre saltos detectados por movimiento.")]
     [SerializeField] private float jumpCooldown = 0.8f;
 
     [Header("Ejes a Monitorear")]
-    [Tooltip("Monitorear movimiento arriba-abajo (eje Y local del teléfono). Es el estándar al levantar el móvil.")]
+    [Tooltip("Eje Y: levantar el móvil hacia arriba.")]
     [SerializeField] private bool monitorYAxis = true;
-    
-    [Tooltip("Monitorear movimiento adelante-atrás (eje Z local del teléfono). Útil si el tirón es hacia adelante.")]
+    [Tooltip("Eje Z: empujar el móvil hacia adelante.")]
     [SerializeField] private bool monitorZAxis = true;
 
-    // Variables de telemetría para calibración
+    [Header("Debug")]
+    [Tooltip("Activa logs detallados en la consola para calibrar el umbral.")]
+    [SerializeField] private bool verboseLogging = true;
+
+    // Telemetría pública para la UI de calibración
     [HideInInspector] public float currentJerkForce;
     [HideInInspector] public float maxJerkForceRecorded;
     [HideInInspector] public Vector3 currentRawAcceleration;
 
     private Vector3 lastAcceleration;
     private float lastJumpTime;
-    private bool hasAccelerometer;
+    private Accelerometer accelerometer;
+    private bool sensorReady = false;
 
     private void Awake()
     {
@@ -41,48 +50,86 @@ public class MotionJumpDetector : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
     }
 
     private void Start()
     {
-        var accelerometer = Accelerometer.current;
-        hasAccelerometer = accelerometer != null;
-
-        if (hasAccelerometer)
-        {
-            lastAcceleration = accelerometer.acceleration.ReadValue();
-        }
-        else
-        {
-            lastAcceleration = Vector3.zero;
-            Debug.LogWarning("[MotionJumpDetector] Acelerómetro no disponible en este dispositivo.");
-        }
-
         lastJumpTime = -jumpCooldown;
+        StartCoroutine(InitAccelerometer());
+    }
+
+    /// <summary>
+    /// Intenta inicializar el acelerómetro con reintentos, ya que Accelerometer.current
+    /// puede ser null los primeros frames si el Input System aún no ha registrado el dispositivo.
+    /// </summary>
+    private IEnumerator InitAccelerometer()
+    {
+        int attempts = 0;
+        const int maxAttempts = 10;
+
+        while (attempts < maxAttempts)
+        {
+            accelerometer = Accelerometer.current;
+
+            if (accelerometer != null)
+            {
+                InputSystem.EnableDevice(accelerometer);
+                // Esperar un frame para que el sensor empiece a emitir datos
+                yield return null;
+                lastAcceleration = accelerometer.acceleration.ReadValue();
+                sensorReady = true;
+                Debug.Log($"[MotionJump] Acelerómetro listo en intento {attempts + 1}. Valor inicial: {lastAcceleration}");
+                yield break;
+            }
+
+            attempts++;
+            Debug.LogWarning($"[MotionJump] Accelerometer.current es null (intento {attempts}/{maxAttempts}). Reintentando...");
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        Debug.LogError("[MotionJump] No se pudo inicializar el acelerómetro. El salto por movimiento no estará disponible.");
+    }
+
+    private void OnDisable()
+    {
+        if (accelerometer != null)
+        {
+            InputSystem.DisableDevice(accelerometer);
+        }
     }
 
     private void Update()
     {
-        if (!hasAccelerometer)
-            return;
+        if (!sensorReady) return;
 
-        var accelerometer = Accelerometer.current;
-        if (accelerometer == null)
+        // Re-verificar por si el dispositivo se desconectó y reconectó (ej. al minimizar la app)
+        if (accelerometer == null || !accelerometer.enabled)
+        {
+            accelerometer = Accelerometer.current;
+            if (accelerometer != null)
+            {
+                InputSystem.EnableDevice(accelerometer);
+                lastAcceleration = accelerometer.acceleration.ReadValue();
+                Debug.Log("[MotionJump] Acelerómetro re-habilitado.");
+            }
             return;
+        }
 
         currentRawAcceleration = accelerometer.acceleration.ReadValue();
 
-        Vector3 accelDelta = currentRawAcceleration - lastAcceleration;
-        float forceY = monitorYAxis ? Mathf.Abs(accelDelta.y) : 0f;
-        float forceZ = monitorZAxis ? Mathf.Abs(accelDelta.z) : 0f;
-
-        float dt = Time.deltaTime > 0 ? Time.deltaTime : 0.02f;
-        currentJerkForce = Mathf.Max(forceY, forceZ) / dt;
+        Vector3 delta = currentRawAcceleration - lastAcceleration;
+        float forceY = monitorYAxis ? Mathf.Max(delta.y, 0f) : 0f; // Solo hacia arriba (delta positivo)
+        float forceZ = monitorZAxis ? Mathf.Abs(delta.z) : 0f;
+        currentJerkForce = Mathf.Max(forceY, forceZ);
 
         if (currentJerkForce > maxJerkForceRecorded)
-        {
             maxJerkForceRecorded = currentJerkForce;
+
+        if (verboseLogging && currentJerkForce > 0.05f)
+        {
+            Debug.Log($"[MotionJump] Accel: {currentRawAcceleration:F3}  Delta-g: {currentJerkForce:F3}  (Y:{delta.y:F3} Z:{delta.z:F3})  Umbral: {jumpThreshold}");
         }
 
         if (currentJerkForce >= jumpThreshold && (Time.time - lastJumpTime) >= jumpCooldown)
@@ -97,10 +144,19 @@ public class MotionJumpDetector : MonoBehaviour
     {
         lastJumpTime = Time.time;
         OnMotionJump?.Invoke();
-        Debug.Log($"[MotionJump] ¡Salto detectado! Fuerza: {currentJerkForce:F2} (Umbral: {jumpThreshold})");
+        Debug.Log($"[MotionJump] *** SALTO DETECTADO *** Delta-g: {currentJerkForce:F3}");
     }
 
-    // Método público para reiniciar el pico máximo en la UI de calibración
+    /// <summary>
+    /// Llama este método desde un botón de UI para verificar que el salto
+    /// funciona correctamente, independientemente del acelerómetro.
+    /// </summary>
+    public void TestJumpFromButton()
+    {
+        Debug.Log("[MotionJump] TEST MANUAL desde botón.");
+        TriggerJump();
+    }
+
     public void ResetMaxJerkRecord()
     {
         maxJerkForceRecorded = 0f;

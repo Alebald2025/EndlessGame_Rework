@@ -1116,6 +1116,7 @@ GameObject:
   - component: {fileID: 872112039}
   - component: {fileID: 872112040}
   - component: {fileID: 872112041}
+  - component: {fileID: 872112042}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1187,6 +1188,32 @@ MonoBehaviour:
   slideDuration: 1
   slideHeightMultiplier: 0.5
   animator: {fileID: 1866220745}
+  hitObstacleTrigger: HitObstacle
+--- !u!114 &872112042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872112035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8e3f7baf6507254398d3ec7db6ac60f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableYSpike: 1
+  ySpikeThreshold: 0.7
+  enableGRise: 1
+  gRiseWindowSeconds: 0.5
+  gRiseThreshold: 0.8
+  jumpCooldown: 0.8
+  verboseLogging: 1
+  currentDeltaY: 0
+  currentGMagnitude: 0
+  currentGRise: 0
+  maxDeltaYRecorded: 0
+  maxGRiseRecorded: 0
+  currentRawAcceleration: {x: 0, y: 0, z: 0}
 --- !u!1001 &872978531
 PrefabInstance:
   m_ObjectHideFlags: 0

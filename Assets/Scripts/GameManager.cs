@@ -27,7 +27,6 @@ public class GameManager : MonoBehaviour
     public int HighScore { get; private set; }
     public int CoinsCollected { get; private set; }
 
-    private float scoreAccumulator = 0f;
     private Vector3 playerStartPos;
     private PlayerController player;
     private CameraFollow cameraFollow;
