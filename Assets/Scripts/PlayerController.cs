@@ -36,6 +36,9 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Referencia al componente Animator del personaje.")]
     [SerializeField] private Animator animator;
 
+    [Tooltip("Trigger que activa la animación de choque contra obstáculo.")]
+    [SerializeField] private string hitObstacleTrigger = "HitObstacle";
+
     private CharacterController controller;
     private int desiredLane = 1; // 0 = Izquierda, 1 = Centro, 2 = Derecha
     private float yVelocity = 0f;
@@ -283,6 +286,12 @@ public class PlayerController : MonoBehaviour
         if (!isControlEnabled) return;
         
         Debug.Log("[Player] Chocó con un obstáculo!");
+
+        if (animator != null)
+        {
+            animator.SetTrigger(hitObstacleTrigger);
+        }
+
         DisableControls();
 
         if (GameManager.Instance != null)
