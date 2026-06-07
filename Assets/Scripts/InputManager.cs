@@ -151,4 +151,10 @@ public class InputManager : MonoBehaviour
             }
         }
     }
+
+    // ── Métodos públicos para sensores externos ──────────────────────────
+    public void InvokeSwipeLeft()  => OnSwipeLeft?.Invoke();
+    public void InvokeSwipeRight() => OnSwipeRight?.Invoke();
+    public void InvokeSwipeUp()    => OnSwipeUp?.Invoke();
+    public void InvokeSwipeDown()  => OnSwipeDown?.Invoke();
 }

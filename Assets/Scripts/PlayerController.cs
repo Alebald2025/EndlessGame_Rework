@@ -28,6 +28,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private string hitObstacleTrigger = "HitObstacle";
 
+    [Header("Sonidos")]
+    [Tooltip("Sonido que se reproduce al chocar con un obstáculo.")]
+    [SerializeField] private AudioClip hitSound;
+    [Tooltip("Volumen del sonido de impacto (0 = silencio, 1 = máximo).")]
+    [SerializeField] [Range(0f, 1f)] private float hitSoundVolume = 1f;
+
     private CharacterController controller;
     private int desiredLane = 1;
     private float yVelocity = 0f;
@@ -237,6 +243,9 @@ public class PlayerController : MonoBehaviour
 
         if (animator != null)
             animator.SetTrigger(hitObstacleTrigger);
+
+        if (hitSound != null)
+            AudioSource.PlayClipAtPoint(hitSound, transform.position, hitSoundVolume);
 
         DisableControls();
         GameManager.Instance?.GameOver();

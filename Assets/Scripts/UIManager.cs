@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 public class UIManager : MonoBehaviour
 {
@@ -23,6 +24,12 @@ public class UIManager : MonoBehaviour
     [Header("Textos de Game Over")]
     [SerializeField] private TextMeshProUGUI gameOverScoreText;
     [SerializeField] private TextMeshProUGUI gameOverHighScoreText;
+
+    [Header("Animación de moneda (DOTween)")]
+    [Tooltip("Escala extra que añade el punch (0.3 = crece un 30%)")]
+    [SerializeField] private float punchScale = 0.3f;
+    [Tooltip("Duración total del punch en segundos")]
+    [SerializeField] private float punchDuration = 0.35f;
 
 
 
@@ -150,5 +157,26 @@ public class UIManager : MonoBehaviour
         Application.Quit();
     }
 
+    /// <summary>
+    /// Anima el texto de monedas y puntuación con un punch scale de DOTween.
+    /// Llamar desde GameManager al recoger una moneda.
+    /// </summary>
+    public void PlayCoinCollectAnimation()
+    {
+        PunchText(hudCoinsText);
+        PunchText(hudScoreText);
+    }
 
+    private void PunchText(TextMeshProUGUI text)
+    {
+        if (text == null) return;
+
+        // Cancelar tween anterior para que no se solapen
+        text.transform.DOKill();
+        text.transform.localScale = Vector3.one;
+
+        text.transform
+            .DOPunchScale(Vector3.one * punchScale, punchDuration, vibrato: 1, elasticity: 0.5f)
+            .SetUpdate(true); // ignora Time.timeScale por si el juego está pausado
+    }
 }

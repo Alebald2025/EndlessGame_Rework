@@ -1117,6 +1117,7 @@ GameObject:
   - component: {fileID: 872112040}
   - component: {fileID: 872112041}
   - component: {fileID: 872112042}
+  - component: {fileID: 872112043}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1186,9 +1187,12 @@ MonoBehaviour:
   jumpForce: 13
   gravity: -20
   slideDuration: 1
+  airSlideDuration: 0.6
   slideHeightMultiplier: 0.5
   animator: {fileID: 1866220745}
   hitObstacleTrigger: HitObstacle
+  hitSound: {fileID: 8300000, guid: 6257530bb3e31fa4a9081de626005abf, type: 3}
+  hitSoundVolume: 1
 --- !u!114 &872112042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1209,6 +1213,24 @@ MonoBehaviour:
   currentJerkForce: 0
   maxJerkForceRecorded: 0
   currentRawAcceleration: {x: 0, y: 0, z: 0}
+--- !u!114 &872112043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872112035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 735db56737f3d2e409d4111c57798595, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tiltThreshold: 18
+  switchCooldown: 0.5
+  calibrateOnStart: 1
+  verboseLogging: 0
+  currentTiltAngle: 0
+  sensorReady: 0
 --- !u!1001 &872978531
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1543,6 +1565,8 @@ MonoBehaviour:
   menuHighScoreText: {fileID: 1736044301}
   gameOverScoreText: {fileID: 1162820413}
   gameOverHighScoreText: {fileID: 1171003309}
+  punchScale: 0.2
+  punchDuration: 0.35
 --- !u!1 &1162820411
 GameObject:
   m_ObjectHideFlags: 0
@@ -2557,7 +2581,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 135, y: -80}
+  m_AnchoredPosition: {x: 140, y: -80}
   m_SizeDelta: {x: 240, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1940684733

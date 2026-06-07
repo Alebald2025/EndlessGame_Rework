@@ -163,6 +163,8 @@ public class GameManager : MonoBehaviour
             HighScore = CurrentScore;
         }
 
+        UIManager.Instance?.PlayCoinCollectAnimation();
+
         Debug.Log($"[GameManager] Moneda recogida. Monedas: {CoinsCollected}, Puntuación: {CurrentScore}");
     }
 

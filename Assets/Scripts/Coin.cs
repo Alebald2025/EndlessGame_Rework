@@ -1,10 +1,9 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class Coin : MonoBehaviour
 {
     [Header("Efectos de la Moneda")]
-    [Tooltip("Velocidad de rotación visual de la moneda en grados por segundo.")]
-    [SerializeField] private float rotationSpeed = 100f;
     [Tooltip("Puntos que otorga esta moneda al ser recogida.")]
     [SerializeField] private int scoreValue = 10;
     [Tooltip("Efecto de partículas opcional que se genera al recolectar.")]
@@ -14,10 +13,34 @@ public class Coin : MonoBehaviour
     [Tooltip("Volumen del sonido de recolección (0 = silencio, 1 = máximo).")]
     [SerializeField] [Range(0f, 1f)] private float coinSoundVolume = 1f;
 
-    private void Update()
+    [Header("Animación DOTween")]
+    [Tooltip("Duración de una vuelta completa de rotación en segundos.")]
+    [SerializeField] private float rotateDuration = 1.2f;
+    [Tooltip("Escala máxima del pulso (1.2 = crece un 20%).")]
+    [SerializeField] private float maxScale = 1.2f;
+    [Tooltip("Escala mínima del pulso (0.85 = se encoge un 15%).")]
+    [SerializeField] private float minScale = 0.8f;
+    [Tooltip("Duración de cada mitad del pulso (crece o encoge).")]
+    [SerializeField] private float pulseDuration = 0.6f;
+
+    private void OnEnable()
     {
-        // Hacer rotar la moneda para que tenga dinamismo visual
-        transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime, Space.World);
+        // Rotación continua en Y con DOTween (reemplaza el Update manual)
+        transform.DORotate(new Vector3(0f, 360f, 0f), rotateDuration, RotateMode.FastBeyond360)
+            .SetEase(Ease.Linear)
+            .SetLoops(-1, LoopType.Restart);
+
+        // Pulso de escala: crece y encoge en bucle infinito
+        transform.DOScale(maxScale, pulseDuration)
+            .SetEase(Ease.InOutSine)
+            .SetLoops(-1, LoopType.Yoyo)
+            .From(minScale);
+    }
+
+    private void OnDisable()
+    {
+        // Matar todos los tweens de esta moneda al desactivarse/destruirse
+        transform.DOKill();
     }
 
     private void OnTriggerEnter(Collider other)
